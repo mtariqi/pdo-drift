@@ -1,0 +1,35 @@
+# RRBS Methylation Pipeline: Trim Galore → Bismark → beta matrix
+configfile: "../../config/config.yaml"
+import pandas as pd
+SAMPLES = pd.read_csv(config["samples"], sep="\t")
+RRBS_SAMPLES = SAMPLES["sample_id"].tolist()
+
+rule all:
+    input:
+        expand("results/methylation/{s}.bismark.cov.gz", s=RRBS_SAMPLES),
+        "results/methylation/cpg_beta_matrix.csv"
+
+rule trim_galore:
+    input:
+        r1="data/raw/{s}_R1.fastq.gz",
+        r2="data/raw/{s}_R2.fastq.gz"
+    output:
+        r1="data/trimmed_rrbs/{s}_R1_val_1.fq.gz",
+        r2="data/trimmed_rrbs/{s}_R2_val_2.fq.gz"
+    threads: 8
+    shell:
+        "trim_galore --paired --rrbs --cores {threads} --output_dir data/trimmed_rrbs/ {input.r1} {input.r2}"
+
+rule bismark_align:
+    input:
+        r1="data/trimmed_rrbs/{s}_R1_val_1.fq.gz",
+        r2="data/trimmed_rrbs/{s}_R2_val_2.fq.gz"
+    output: "results/methylation/{s}_bismark.bam"
+    shell:
+        "bismark --genome data/reference/hg38/ -1 {input.r1} -2 {input.r2} --output_dir results/methylation/"
+
+rule bismark_extract:
+    input: "results/methylation/{s}_bismark.bam"
+    output: "results/methylation/{s}.bismark.cov.gz"
+    shell:
+        "bismark_methylation_extractor --paired-end --CX --bedGraph --output results/methylation/ {input}"

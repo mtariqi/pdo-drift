@@ -1,0 +1,101 @@
+name: pdo-drift
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # ── Python core ──────────────────────────────────────────
+  - python=3.10
+  - pip
+  - setuptools
+  - wheel
+
+  # ── Data science ─────────────────────────────────────────
+  - numpy>=1.24
+  - pandas>=2.0
+  - scipy>=1.11
+  - scikit-learn>=1.3
+  - statsmodels>=0.14
+  - matplotlib>=3.7
+  - seaborn>=0.12
+  - plotly>=5.15
+  - kaleido               # plotly static export
+
+  # ── Bioinformatics — Python ───────────────────────────────
+  - pysam>=0.21           # BAM/SAM manipulation
+  - biopython>=1.81       # Sequence utilities
+  - pyvcf3                # VCF parsing
+  - cyvcf2                # Fast VCF parsing
+  - anndata>=0.9          # AnnData for single-cell
+  - scanpy>=1.9           # Single-cell analysis
+  - leidenalg             # Leiden clustering
+  - harmonypy             # Batch correction
+  - scvi-tools>=1.0       # Deep generative models
+  - celltypist            # Cell type annotation
+  - episcanpy             # Epigenomics + single-cell
+
+  # ── Sequence alignment & processing ──────────────────────
+  - star=2.7.11a          # RNA-seq alignment
+  - hisat2                # Alternative aligner
+  - bwa-mem2              # WES alignment
+  - samtools>=1.17        # SAM/BAM utilities
+  - picard                # Duplicate marking, QC
+  - trimmomatic           # Read trimming
+  - fastp                 # Fast read QC + trimming
+  - fastqc                # Per-sample read QC
+  - multiqc               # Aggregate QC reports
+
+  # ── Variant calling ───────────────────────────────────────
+  - gatk4                 # MuTect2 somatic calling
+  - varscan               # Alternative somatic caller
+  - strelka               # Strelka2 somatic caller
+  - annovar               # Variant annotation
+  - vep                   # Ensembl Variant Effect Predictor
+
+  # ── CNV / structural variants ────────────────────────────
+  - cnvkit                # CNV calling from WES
+  - facets-suite          # Allele-specific CNV
+
+  # ── RNA-seq quantification ────────────────────────────────
+  - subread               # featureCounts
+  - rsem                  # Transcript quantification
+  - salmon                # Quasi-mapping quantification
+  - kallisto              # Ultra-fast quantification
+
+  # ── Methylation ───────────────────────────────────────────
+  - bismark               # RRBS/WGBS alignment
+  - trim-galore           # RRBS-aware trimming
+
+  # ── Peak calling / epigenomics ────────────────────────────
+  - deeptools             # BAM utilities, bigWig
+  - bedtools              # Genomic interval arithmetic
+  - ucsc-bedgraphtobigwig # BigWig conversion
+
+  # ── Workflow management ────────────────────────────────────
+  - snakemake>=7.32
+  - snakemake-executor-plugin-slurm
+
+  # ── Notebook & reporting ──────────────────────────────────
+  - jupyterlab>=4.0
+  - ipywidgets
+  - nbconvert
+  - papermill             # Parameterized notebook execution
+
+  # ── Dev tools ─────────────────────────────────────────────
+  - black                 # Code formatter
+  - flake8                # Linter
+  - pytest
+  - pytest-cov
+  - mypy
+
+  - pip:
+    - pydeseq2            # DESeq2 in Python
+    - pyclone-vi          # Clonal evolution
+    - mofapy2             # Multi-Omic Factor Analysis
+    - decoupler-py        # Pathway activity estimation
+    - liana-py            # Cell-cell communication
+    - pertpy              # Perturbation analysis
+    - scperturb           # Perturbation datasets
+    - pycisTopic          # ATAC/RRBS topic modeling
+    - gseapy              # GSEA in Python
+    - adjusttext          # Non-overlapping plot labels

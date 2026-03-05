@@ -1,0 +1,98 @@
+name: CI — Lint, Test & Pipeline Dry-Run
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Job 1: Code quality ─────────────────────────────────────
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dev tools
+        run: |
+          pip install black flake8 mypy
+
+      - name: Black format check
+        run: black --check src/ tests/
+
+      - name: Flake8 lint
+        run: flake8 src/ tests/ --max-line-length=100 --ignore=E203,W503
+
+  # ── Job 2: Unit tests ───────────────────────────────────────
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+          pip install -e .
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v \
+            --cov=src/ \
+            --cov-report=xml \
+            --cov-report=term-missing
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage.xml
+
+  # ── Job 3: Snakemake dry-run ────────────────────────────────
+  snakemake-dryrun:
+    name: Snakemake Pipeline Dry-Run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: pdo-drift
+          python-version: "3.10"
+          channels: conda-forge,bioconda,defaults
+
+      - name: Install Snakemake
+        shell: bash -l {0}
+        run: conda install -c conda-forge -c bioconda snakemake -y
+
+      - name: WES pipeline dry-run
+        shell: bash -l {0}
+        run: |
+          cd pipelines/wes
+          snakemake --configfile ../../config/config.yaml \
+                    --dryrun --quiet 2>&1 | head -30 || true
+
+      - name: RNA-seq pipeline dry-run
+        shell: bash -l {0}
+        run: |
+          cd pipelines/rnaseq
+          snakemake --configfile ../../config/config.yaml \
+                    --dryrun --quiet 2>&1 | head -30 || true

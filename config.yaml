@@ -1,0 +1,105 @@
+# ─────────────────────────────────────────────────────────────
+#  PDO Drift Project — Master Configuration
+#  Edit paths and parameters to match your compute environment
+# ─────────────────────────────────────────────────────────────
+
+project:
+  name: "PDO-DRIFT-001"
+  version: "1.0"
+  author: "mtariqi"
+
+# ── Reference genome ─────────────────────────────────────────
+reference:
+  genome: "data/reference/hg38/hg38.fa"
+  genome_index_bwa: "data/reference/hg38/bwa_mem2/"
+  genome_index_star: "data/reference/hg38/STAR_index/"
+  gtf: "data/reference/gencode.v44.annotation.gtf"
+  dbsnp: "data/reference/dbSNP_b156_hg38.vcf.gz"
+  gnomad: "data/reference/gnomad.exomes.v4.vcf.gz"
+  cosmic: "data/reference/CosmicMutantExport_hg38.vcf.gz"
+  exome_targets: "data/reference/SureSelect_Human_Exon_v7.bed"
+
+# ── Sample information ────────────────────────────────────────
+samples: "config/samples.tsv"
+passages: [2, 5, 10, 15, 20]
+freeze_thaw_timepoints: ["24h", "48h", "72h", "7d"]
+tumor_types:
+  - CRC       # Colorectal carcinoma
+  - PDAC      # Pancreatic ductal adenocarcinoma
+  - NSCLC     # Non-small cell lung cancer
+  - BRCA      # Breast carcinoma
+  - GC        # Gastric carcinoma
+
+# ── WES pipeline parameters ───────────────────────────────────
+wes:
+  min_base_quality: 20
+  min_mapping_quality: 30
+  min_depth: 100          # Minimum target coverage
+  min_allele_freq: 0.05   # Minimum VAF to report
+  mutect2:
+    max_reads_per_alignment_start: 50
+    f1r2_min_bq: 20
+  cnvkit:
+    method: "hybrid"      # exome capture
+    segment_method: "cbs"
+
+# ── RNA-seq pipeline parameters ───────────────────────────────
+rnaseq:
+  strandedness: "reverse"   # dUTP / TruSeq Stranded
+  min_reads: 30_000_000
+  min_rin: 7.0
+  star:
+    outSAMtype: "BAM SortedByCoordinate"
+    outSAMattributes: "NH HI AS NM MD"
+    quantMode: "TranscriptomeSAM GeneCounts"
+  deseq2:
+    alpha: 0.05
+    lfc_threshold: 1.0
+  gsea:
+    gene_sets:
+      - "MSigDB_Hallmark_2023"
+      - "KEGG_2021_Human"
+      - "WikiPathway_2023_Human"
+
+# ── scRNA-seq pipeline parameters ─────────────────────────────
+scrna:
+  target_cells: 8000
+  min_genes_per_cell: 200
+  max_genes_per_cell: 8000
+  max_mito_pct: 20
+  n_top_genes: 3000        # Highly variable genes
+  n_pcs: 50
+  n_neighbors: 30
+  leiden_resolution: 0.5
+
+# ── RRBS pipeline parameters ─────────────────────────────────
+rrbs:
+  bismark:
+    non_directional: false
+    score_min: "L,0,-0.6"
+  min_coverage: 10         # Minimum CpG coverage
+  min_cpgs_per_region: 5
+
+# ── MODS scoring weights ──────────────────────────────────────
+mods:
+  weights:
+    genomic: 0.30
+    transcriptomic: 0.35
+    epigenomic: 0.15
+    functional: 0.20
+  drift_threshold: 0.25    # Flag if MODS > 0.25
+
+# ── Drug sensitivity panel ────────────────────────────────────
+drug_panel:
+  concentrations: [0.01, 0.1, 1, 10, 50, 100, 500, 1000]  # nM
+  exposure_hours: 72
+  ic50_shift_threshold: 3.0  # fold-change threshold
+
+# ── Computational resources ───────────────────────────────────
+resources:
+  default_threads: 8
+  high_mem_threads: 16
+  alignment_threads: 32
+  gatk_mem: "16g"
+  star_mem: "40g"
+  tmpdir: "/tmp/pdo_drift"
