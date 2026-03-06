@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [main]
 
+- name: Install dependencies
+  run: |
+    python -m pip install --upgrade pip
+    pip install pytest numpy  # Add numpy here
+    # Or if you have a requirements.txt:
+    # pip install -r requirements.txt
+
 jobs:
   # ── Job 1: Code quality ─────────────────────────────────────
   lint:
