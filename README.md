@@ -256,7 +256,7 @@ If you use this framework, please cite:
 
 ```bibtex
 @software{pdo_drift_2025,
-  author = {Tariqi, M.},
+  author = {Islam, Md Tariqi},
   title  = {PDO Temporal Drift Characterization Framework},
   year   = {2025},
   url    = {https://github.com/mtariqi/pdo-drift}
